@@ -33,4 +33,11 @@ class FastTextView(
 			TextViewCompat.setPrecomputedText(this@FastTextView, computedText)
 		}
 	}
+
+	override fun onDetachedFromWindow() {
+		deferred?.cancel()
+		deferred = null
+
+		super.onDetachedFromWindow()
+	}
 }
