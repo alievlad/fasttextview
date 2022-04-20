@@ -7,7 +7,6 @@ import androidx.core.text.PrecomputedTextCompat
 import androidx.core.widget.TextViewCompat
 import kotlinx.coroutines.*
 
-
 /**
  * Created by alievlad on 4/13/2022.
  */
@@ -17,9 +16,25 @@ class FastTextView(
 	attrs: AttributeSet?
 ) : AppCompatTextView(context, attrs) {
 
-	private var deferred : Deferred<Unit>? = null
+	private var ignoreSelf = false
+	private var deferred: Deferred<Unit>? = null
 
-	override fun setText(text: CharSequence, type: BufferType?) {
+	override fun setText(
+		text: CharSequence?,
+		type: BufferType?
+	) {
+		if (text == null) {
+			return
+		}
+
+		if (!ignoreSelf) {
+			setTextAsync(text = text.toString())
+		} else {
+			super.setText(text, type)
+		}
+	}
+
+	private fun setTextAsync(text: String) {
 
 		deferred?.cancel()
 
@@ -30,7 +45,11 @@ class FastTextView(
 				PrecomputedTextCompat.create(text, params)
 			}
 
+			ignoreSelf = true
+
 			TextViewCompat.setPrecomputedText(this@FastTextView, computedText)
+
+			ignoreSelf = false
 		}
 	}
 
